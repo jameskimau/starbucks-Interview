@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,6 +95,13 @@ export default function InboxRulesBuilder() {
       body: simBody,
     });
   };
+
+  // 서버에서 받아온 응답값(console.log로 보여주기)
+  useEffect(() => {
+    if (simulateMutation.data) {
+      console.log("Simulate response:", simulateMutation.data);
+    }
+  }, [simulateMutation.data]);
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -238,7 +245,6 @@ export default function InboxRulesBuilder() {
               placeholder="body"
             />
             <Button onClick={handleSimulate}>Simulate</Button>
-
             {simulateMutation.data && (
               <Card
                 className={
@@ -247,32 +253,32 @@ export default function InboxRulesBuilder() {
                     : "border-orange-500 bg-orange-50 dark:bg-orange-950"
                 }
               >
-                <CardContent className="pt-6 space-y-2">
+                <CardContent className="pt-6 space-y-4">
                   {simulateMutation.data.matched ? (
                     <>
                       <p className="font-semibold text-green-700 dark:text-green-400">
-                        ✅ Rule Matched
+                        ✅ {simulateMutation.data.rules.length} rule(s) matched
                       </p>
 
-                      <p className="text-sm">
-                        <span className="font-medium">Rule:</span>{" "}
-                        {simulateMutation.data.rule.name}
-                      </p>
+                      {simulateMutation.data.rules.map((rule: any) => (
+                        <div key={rule._id} className="border-t pt-3 space-y-1">
+                          <p className="font-medium">{rule.name}</p>
 
-                      <p className="text-sm">
-                        <span className="font-medium">Condition:</span>{" "}
-                        {simulateMutation.data.rule.condition.field}{" "}
-                        {simulateMutation.data.rule.condition.operator} “
-                        {simulateMutation.data.rule.condition.value}”
-                      </p>
+                          <p className="text-sm">
+                            <span className="font-medium">Condition:</span>{" "}
+                            {rule.condition.field} {rule.condition.operator} “
+                            {rule.condition.value}”
+                          </p>
 
-                      <p className="text-sm">
-                        <span className="font-medium">Action:</span>{" "}
-                        {simulateMutation.data.action.type} →{" "}
-                        <span className="font-semibold">
-                          {simulateMutation.data.action.value}
-                        </span>
-                      </p>
+                          <p className="text-sm">
+                            <span className="font-medium">Action:</span>{" "}
+                            {rule.action.type} →{" "}
+                            <span className="font-semibold">
+                              {rule.action.value}
+                            </span>
+                          </p>
+                        </div>
+                      ))}
                     </>
                   ) : (
                     <p className="font-semibold text-orange-700 dark:text-orange-400">
