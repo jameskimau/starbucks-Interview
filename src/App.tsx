@@ -15,10 +15,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
+// TYPES
 type ConditionField = "subject" | "from";
 type Operator = "contains" | "equals";
 type ActionType = "addTag" | "autoReply";
-
+// INTERFACE
 interface Rule {
   id: string;
   name: string;
@@ -29,7 +30,7 @@ interface Rule {
   actionType: ActionType;
   actionValue: string;
 }
-
+// BUILD COMPONENT
 export default function InboxRulesBuilder() {
   const [rules, setRules] = useState<Rule[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -60,10 +61,9 @@ export default function InboxRulesBuilder() {
     setConditionField(value);
     setOperator(getOperatorForField(value));
   };
-
+  // VALIDATOR
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-
     if (!ruleName.trim()) newErrors.ruleName = "Rule name is required";
     if (!conditionValue.trim())
       newErrors.conditionValue = "Condition value is required";
@@ -72,7 +72,7 @@ export default function InboxRulesBuilder() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  // HANDLE CREATE RULE
   const handleCreateRule = () => {
     if (!validateForm()) return;
 
@@ -95,7 +95,7 @@ export default function InboxRulesBuilder() {
     setActionValue("");
     setErrors({});
   };
-
+  // TOGGLE URLE
   const toggleRule = (id: string) => {
     setRules(
       rules.map((rule) =>
@@ -103,7 +103,7 @@ export default function InboxRulesBuilder() {
       )
     );
   };
-
+  // TESTING SIMULATOR
   const handleSimulate = () => {
     const matchedRule = rules.find((rule) => {
       if (!rule.enabled) return false;
@@ -125,7 +125,7 @@ export default function InboxRulesBuilder() {
       matchedRule ? { matched: true, rule: matchedRule } : { matched: false }
     );
   };
-
+  // BUILD COMPONENT
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-4xl mx-auto space-y-8">

@@ -68,3 +68,31 @@ Example:
   - `from + equals`: case-insensitive exact match on the from address.
 - The **first rule that matches** stops the search; the API returns `{ matched: true, rule, action }`.
 - If no rules match, the API returns `{ matched: false, rule: null, action: null }`.
+
+
+
+// Example: Create a Rule
+// "If an email's subject contains the word 'invoice', tag it as 'finance'."
+{
+  "name": "Invoice checker",
+  "condition": {
+    "field": "subject",        // check the email's subject
+    "operator": "contains",    // does it contain the value below?
+    "value": "invoice"         // the keyword to look for
+  },
+  "action": {
+    "type": "addTag",          // what to do when it matches
+    "value": "finance"         // tag the email as "finance"
+  }
+}
+
+// Example: Simulate an Email
+// Attempt to match this email against your rules.
+{
+  "from": "test@example.com",
+  "subject": "Invoice for March",
+  "body": "Here is your invoice"
+}
+
+// The backend will check all enabled rules in order,
+// match the first one (if any), and respond with the corresponding action.
