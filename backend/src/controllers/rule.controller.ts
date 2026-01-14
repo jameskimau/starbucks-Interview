@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { isValidObjectId } from 'mongoose';
 import { RuleModel } from '../models/Rule.model';
 import { createRuleSchema } from '../schemas/rule.schema';
-
+// 
 export async function createRule(req: Request, res: Response) {
   const parsed = createRuleSchema.safeParse(req.body);
   if (!parsed.success) {
