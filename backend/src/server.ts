@@ -1,9 +1,13 @@
-import express, { type Request, type Response, type NextFunction } from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import ruleRoutes from './routes/rule.routes';
-import simulateRoutes from './routes/simulate.routes';
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import ruleRoutes from "./routes/rule.routes";
+import simulateRoutes from "./routes/simulate.routes";
 
 dotenv.config();
 
@@ -12,31 +16,32 @@ const MONGO_URI = process.env.MONGO_URI;
 
 if (!MONGO_URI) {
   // Fail fast: local dev should have a clear error if env isn't configured.
-  throw new Error('Missing required env var: MONGO_URI');
+  throw new Error("Missing required env var: MONGO_URI");
 }
 
 const mongoUri: string = MONGO_URI;
 
 async function start() {
   await mongoose.connect(mongoUri);
-  console.log('Connected to MongoDB');
+  console.log("Connected to MongoDB");
 
   const app = express();
-  app.use(cors());
+  // allow any domain
+  app.use(cors({ origin: true, credentials: true }));
   app.use(express.json());
 
-  app.get('/health', (_req: Request, res: Response) => {
+  app.get("/health", (_req: Request, res: Response) => {
     res.json({ ok: true });
   });
 
-  app.use('/api', ruleRoutes);
-  app.use('/api', simulateRoutes);
+  app.use("/api", ruleRoutes);
+  app.use("/api", simulateRoutes);
 
   // Basic error handler to keep responses consistent.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Unhandled error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Unhandled error:", err);
+    res.status(500).json({ error: "Internal server error" });
   });
 
   app.listen(PORT, () => {
@@ -45,7 +50,6 @@ async function start() {
 }
 
 start().catch((err) => {
-  console.error('Failed to start server:', err);
+  console.error("Failed to start server:", err);
   process.exit(1);
 });
-
