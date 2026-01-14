@@ -42,3 +42,12 @@ export const simulateEmail = async (payload: {
   if (!res.ok) throw new Error("Failed to simulate email");
   return res.json();
 };
+
+export const toggleRule = async (id: string) => {
+  const res = await fetch(`${API_BASE}/rules/${id}/toggle`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw new Error("Failed to toggle rule");
+  return res.json();
+};

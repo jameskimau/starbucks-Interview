@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToggleRule } from "@/hooks/useToggleRule";
 
 import {
   Select,
@@ -18,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRules } from "@/hooks/useRules";
 import { useCreateRule } from "@/hooks/useCreateRule";
 import { useSimulate } from "./hooks/useSimulateRule";
+import { Switch } from "@/components/ui/switch";
 
 // TYPES
 type ConditionField = "subject" | "from";
@@ -39,6 +41,7 @@ export default function InboxRulesBuilder() {
   const [conditionValue, setConditionValue] = useState("");
   const [actionType, setActionType] = useState<ActionType>("addTag");
   const [actionValue, setActionValue] = useState("");
+  const toggleRuleMutation = useToggleRule();
 
   // SIMULATION INPUT STATE
   const [simFrom, setSimFrom] = useState("");
@@ -155,6 +158,7 @@ export default function InboxRulesBuilder() {
             >
               Create Rule
             </Button>
+
             {createRuleMutation.isError && (
               <p className="text-sm text-destructive">
                 Failed to create rule. Please try again.
@@ -174,6 +178,16 @@ export default function InboxRulesBuilder() {
             ) : (
               rules.map((rule: any) => (
                 <Card key={rule._id} className="border my-4">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold">{rule.name}</p>
+
+                    <Switch
+                      checked={rule.enabled}
+                      onCheckedChange={() =>
+                        toggleRuleMutation.mutate(rule._id)
+                      }
+                    />
+                  </div>
                   <CardContent className="space-y-2 pt-4">
                     {/* Rule name */}
                     <p className="font-semibold text-base">{rule.name}</p>
