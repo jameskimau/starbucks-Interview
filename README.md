@@ -1,74 +1,70 @@
-# React + TypeScript + Vite
+## 1. Project Overview
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Inbox Rules Mini-Automation Builder is a small full-stack app for defining simple **rule-based inbox automations** and **simulating** how incoming emails would be handled.  
+Users can create rules on fields like `subject` and `from`, choose actions such as tagging or auto-replying, and then test these rules against sample emails without touching a real mailbox.
 
-Currently, two official plugins are available:
+## 2. Core Idea
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Problem it solves**: Safely design and reason about inbox automation logic before wiring it into a real email system.
+- **What the user can do**:
+  - Create, list, and toggle rules that describe how emails should be processed.
+  - Simulate an incoming email and see which rule (if any) would match and what action would be taken.
+- **What is stored in the database**:
+  - Rule metadata: name, enabled flag, timestamps.
+  - Rule logic: condition (field/operator/value) and action (type/value).
 
-## React Compiler
+## 3. System Diagram
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```text
++-------------+      HTTP (JSON)       +--------------------+      +-------------+
+|  Frontend   |  <------------------>  |   Backend API      |      |   MongoDB   |
+| (React/Vite)|   /api/rules,          | (Node/Express/TS)  | <--> |   (Rules)   |
+|             |   /api/simulate        |                    |      |             |
++-------------+                        +--------------------+      +-------------+
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+   User creates rules & runs simulations      Rules stored & queried
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 4. Rule Model Explanation
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+A **Rule** describes:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-# interview_starbucks
+- **Condition**: when this rule should apply (e.g. which emails it matches).
+- **Action**: what to do when it matches.
+
+Example:
+
+- Condition: `subject` **contains** `"invoice"`
+- Action: `addTag` \*\*"finance"`
+- Interpretation: “If an email’s subject contains the word ‘invoice’, tag it as ‘finance’.”
+
+## 5. Functional Features
+
+- **Create Rule**: Define name, condition (`subject`/`from`, `contains`/`equals`, value) and action (`addTag` / `autoReply`, value).
+- **Rules List**: View all rules, see enabled status, condition/action summaries, and creation time.
+- **Toggle Rule**: Enable/disable rules via a single toggle endpoint.
+- **Simulate Email**: Submit `from`, `subject`, and optional `body` to see which rule would match and what action would fire.
+- **Deterministic Matching**: Simulation always picks the **earliest created enabled rule** that matches.
+
+## 6. Non-Functional Considerations
+
+- **Usability**: Single-page UI with clear sections (Create Rule, Rules List, Simulate Email) and simple, form-based interactions.
+- **Maintainability**: Strong TypeScript typing, Zod validation, and separation into models, controllers, routes, and schemas.
+- **Scalability (logical)**: Rule evaluation logic is explicit and easily extensible to more fields/operators/actions or additional data sources.
+- **Reliability**: Input validation on all write/simulate endpoints and consistent JSON responses reduce edge-case failures.
+
+## 7. Tech Stack
+
+- **Frontend**: React + TypeScript (Vite), Axios, simple CSS.
+- **Backend**: Node.js, Express, TypeScript, Zod for validation.
+- **Database**: MongoDB with Mongoose models.
+- **Tooling**: `ts-node-dev` for backend dev, `tsc` for builds, ESLint/TypeScript configs for type safety and linting.
+
+## 8. How Simulation Works (short)
+
+- The backend loads all **enabled** rules from MongoDB, sorted by `createdAt` ascending.
+- For each rule, it checks the condition against the simulated email:
+  - `subject + contains`: case-insensitive substring check on the subject.
+  - `from + equals`: case-insensitive exact match on the from address.
+- The **first rule that matches** stops the search; the API returns `{ matched: true, rule, action }`.
+- If no rules match, the API returns `{ matched: false, rule: null, action: null }`.
