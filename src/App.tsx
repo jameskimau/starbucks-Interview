@@ -178,9 +178,7 @@ export default function InboxRulesBuilder() {
             ) : (
               rules.map((rule: any) => (
                 <Card key={rule._id} className="border my-4">
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold">{rule.name}</p>
-
+                  <div className="flex items-center justify-between pt-4 pl-4">
                     <Switch
                       checked={rule.enabled}
                       onCheckedChange={() =>
