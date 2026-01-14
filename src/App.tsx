@@ -155,6 +155,11 @@ export default function InboxRulesBuilder() {
             >
               Create Rule
             </Button>
+            {createRuleMutation.isError && (
+              <p className="text-sm text-destructive">
+                Failed to create rule. Please try again.
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -168,9 +173,32 @@ export default function InboxRulesBuilder() {
               <p>Loading rules...</p>
             ) : (
               rules.map((rule: any) => (
-                <p key={rule._id}>
-                  {rule.name} — {rule.condition.field} {rule.condition.operator}
-                </p>
+                <Card key={rule._id} className="border my-4">
+                  <CardContent className="space-y-2 pt-4">
+                    {/* Rule name */}
+                    <p className="font-semibold text-base">{rule.name}</p>
+
+                    {/* Divider */}
+                    <div className="border-t" />
+
+                    {/* Condition */}
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        Condition:
+                      </span>{" "}
+                      {rule.condition.field} {rule.condition.operator} "
+                      {rule.condition.value}"
+                    </p>
+
+                    {/* Action */}
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        Action:
+                      </span>{" "}
+                      {rule.action.type} → "{rule.action.value}"
+                    </p>
+                  </CardContent>
+                </Card>
               ))
             )}
           </CardContent>
@@ -200,9 +228,47 @@ export default function InboxRulesBuilder() {
             <Button onClick={handleSimulate}>Simulate</Button>
 
             {simulateMutation.data && (
-              <pre className="text-sm bg-muted p-3 rounded">
-                {JSON.stringify(simulateMutation.data, null, 2)}
-              </pre>
+              <Card
+                className={
+                  simulateMutation.data.matched
+                    ? "border-green-500 bg-green-50 dark:bg-green-950"
+                    : "border-orange-500 bg-orange-50 dark:bg-orange-950"
+                }
+              >
+                <CardContent className="pt-6 space-y-2">
+                  {simulateMutation.data.matched ? (
+                    <>
+                      <p className="font-semibold text-green-700 dark:text-green-400">
+                        ✅ Rule Matched
+                      </p>
+
+                      <p className="text-sm">
+                        <span className="font-medium">Rule:</span>{" "}
+                        {simulateMutation.data.rule.name}
+                      </p>
+
+                      <p className="text-sm">
+                        <span className="font-medium">Condition:</span>{" "}
+                        {simulateMutation.data.rule.condition.field}{" "}
+                        {simulateMutation.data.rule.condition.operator} “
+                        {simulateMutation.data.rule.condition.value}”
+                      </p>
+
+                      <p className="text-sm">
+                        <span className="font-medium">Action:</span>{" "}
+                        {simulateMutation.data.action.type} →{" "}
+                        <span className="font-semibold">
+                          {simulateMutation.data.action.value}
+                        </span>
+                      </p>
+                    </>
+                  ) : (
+                    <p className="font-semibold text-orange-700 dark:text-orange-400">
+                      ⚠️ No rule matched this email
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
             )}
           </CardContent>
         </Card>

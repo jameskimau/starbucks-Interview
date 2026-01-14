@@ -69,29 +69,35 @@ Example:
 - The **first rule that matches** stops the search; the API returns `{ matched: true, rule, action }`.
 - If no rules match, the API returns `{ matched: false, rule: null, action: null }`.
 
+## 9. TanStack Query Integration (frontend)
 
+- The app now uses **TanStack Query** to manage **server state** on the frontend while keeping the UI intentionally simple.
+- `useRules()` fetches and caches the rules list so repeated views stay fast and consistent.
+- `useCreateRule()` sends create requests and **invalidates** the rules query, ensuring the list stays in sync after new rules are added.
+- `useSimulate()` wraps the simulate endpoint, returning the latest matched result for the given email input.
+- This integration focuses purely on data fetching and cache consistency — no refactors, new features, or styling changes were introduced.
 
 // Example: Create a Rule
 // "If an email's subject contains the word 'invoice', tag it as 'finance'."
 {
-  "name": "Invoice checker",
-  "condition": {
-    "field": "subject",        // check the email's subject
-    "operator": "contains",    // does it contain the value below?
-    "value": "invoice"         // the keyword to look for
-  },
-  "action": {
-    "type": "addTag",          // what to do when it matches
-    "value": "finance"         // tag the email as "finance"
-  }
+"name": "Invoice checker",
+"condition": {
+"field": "subject", // check the email's subject
+"operator": "contains", // does it contain the value below?
+"value": "invoice" // the keyword to look for
+},
+"action": {
+"type": "addTag", // what to do when it matches
+"value": "finance" // tag the email as "finance"
+}
 }
 
 // Example: Simulate an Email
 // Attempt to match this email against your rules.
 {
-  "from": "test@example.com",
-  "subject": "Invoice for March",
-  "body": "Here is your invoice"
+"from": "test@example.com",
+"subject": "Invoice for March",
+"body": "Here is your invoice"
 }
 
 // The backend will check all enabled rules in order,
