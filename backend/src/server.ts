@@ -42,8 +42,8 @@ async function start() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
   app.use(express.static(path.join(__dirname, "../../frontend/dist")));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../../frontend", "dist", "index.html"));
+  app.get(/.*/, (_req, res) => {
+    res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
   });
 
   app.listen(PORT, () => {
