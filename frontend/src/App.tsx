@@ -291,6 +291,7 @@ export default function InboxRulesBuilder() {
           </CardContent>
         </Card>
       </div>
+      {errors && errors?.message}
     </div>
   );
 }

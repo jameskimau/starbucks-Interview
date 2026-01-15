@@ -8,8 +8,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import ruleRoutes from "./routes/rule.routes";
 import simulateRoutes from "./routes/simulate.routes";
-import authRoutes from "./routes/auth.routes";
-import { authMiddleware } from "./middleware/auth.middleware";
+import path from "path";
 
 dotenv.config();
 
@@ -36,18 +35,18 @@ async function start() {
     res.json({ ok: true });
   });
 
-  // Public auth route: returns a JWT on valid credentials.
-  app.use("/api", authRoutes);
-
-  // All rule/simulate endpoints require a valid JWT.
-  app.use("/api", authMiddleware, ruleRoutes);
-  app.use("/api", authMiddleware, simulateRoutes);
+  app.use("/api", ruleRoutes);
+  app.use("/api", simulateRoutes);
 
   // Basic error handler to keep responses consistent.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-    console.error("Unhandled error:", err);
-    res.status(500).json({ error: "Internal server error" });
+
+  const frontendDistPath = path.join(__dirname, "../../frontend/dist");
+
+  app.use(express.static(frontendDistPath));
+
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 
   app.listen(PORT, () => {

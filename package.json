@@ -1,0 +1,13 @@
+{
+  "name": "interview3",
+  "version": "1.0.0",
+  "description": "Inbox Rules Mini-Automation Builder is a small full-stack app for defining simple **rule-based inbox automations** and **simulating** how incoming emails would be handled.   Users can create rules on fields like `subject` and `from`, choose actions such as tagging or auto-replying, and then test these rules against sample emails without touching a real mailbox.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+    "start": "npm run start --prefix backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
