@@ -41,12 +41,9 @@ async function start() {
   // Basic error handler to keep responses consistent.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-  const frontendDistPath = path.join(__dirname, "../../frontend/dist");
-
-  app.use(express.static(frontendDistPath));
-
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(frontendDistPath, "index.html"));
+  app.use(express.static(path.join(__dirname, "../../frontend/dist")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../../frontend", "dist", "index.html"));
   });
 
   app.listen(PORT, () => {
