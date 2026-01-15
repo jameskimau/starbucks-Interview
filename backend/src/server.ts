@@ -8,6 +8,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import ruleRoutes from "./routes/rule.routes";
 import simulateRoutes from "./routes/simulate.routes";
+import authRoutes from "./routes/auth.routes";
+import { authMiddleware } from "./middleware/auth.middleware";
 
 dotenv.config();
 
@@ -34,8 +36,12 @@ async function start() {
     res.json({ ok: true });
   });
 
-  app.use("/api", ruleRoutes);
-  app.use("/api", simulateRoutes);
+  // Public auth route: returns a JWT on valid credentials.
+  app.use("/api", authRoutes);
+
+  // All rule/simulate endpoints require a valid JWT.
+  app.use("/api", authMiddleware, ruleRoutes);
+  app.use("/api", authMiddleware, simulateRoutes);
 
   // Basic error handler to keep responses consistent.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
